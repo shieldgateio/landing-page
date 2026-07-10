@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShieldGate — API Security Without the Complexity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: #0a0a0a; color: #e8e8e4; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+    :root {
+      --green: #3FB6A8;
+      --green-dim: #1E4A45;
+      --green-mid: #235F58;
+      --red: #e74c3c;
+      --yellow: #f1c40f;
+      --blue: #3b82f6;
+      --border: #111;
+      --border-light: #1a1a1a;
+      --bg: #0a0a0a;
+      --bg-2: #0d0d0d;
+      --bg-3: #111;
+      --text: #e8e8e4;
+      --text-dim: #666;
+      --text-muted: #333;
+      --mono: 'Courier Prime', monospace;
+      --sans: 'Inter', sans-serif;
+    }
+
+    /* SCANLINES */
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+      pointer-events: none; z-index: 9999;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px;
+      padding: 0 48px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(8px); z-index: 100; font-family: var(--mono);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-icon { width: 28px; height: 28px; border: 1px solid var(--green); display: flex; align-items: center; justify-content: center; }
+    .nav-name { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: 0.02em; }
+    .nav-name em { color: var(--green); font-style: normal; }
+    .nav-links { display: flex; gap: 2px; }
+    .nav-link { font-size: 12px; color: var(--text-muted); padding: 6px 12px; text-decoration: none; letter-spacing: 0.04em; transition: color 0.15s; }
+    .nav-link:hover { color: var(--green); }
+    .nav-right { display: flex; gap: 10px; align-items: center; }
+    .nav-btn-ghost { font-family: var(--mono); font-size: 11px; color: var(--text-muted); border: 1px solid var(--border-light); padding: 7px 16px; background: transparent; cursor: pointer; letter-spacing: 0.06em; transition: all 0.15s; }
+    .nav-btn-ghost:hover { color: var(--green); border-color: var(--green-dim); }
+    .nav-btn-primary { font-family: var(--mono); font-size: 11px; color: var(--bg); background: var(--green); border: none; padding: 7px 16px; cursor: pointer; letter-spacing: 0.06em; transition: opacity 0.15s; }
+    .nav-btn-primary:hover { opacity: 0.85; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh; padding: 120px 48px 80px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+      position: relative; overflow: hidden;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 44px 44px; opacity: 0.5;
+    }
+    .hero-glow {
+      position: absolute; width: 500px; height: 500px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(46,204,113,0.04) 0%, transparent 70%);
+      top: 50%; left: 25%; transform: translate(-50%, -50%); pointer-events: none;
+    }
+    .hero-left { position: relative; z-index: 1; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 10px; color: var(--green);
+      letter-spacing: 0.14em; margin-bottom: 24px;
+    }
+    .hero-tag::before { content: '›'; color: var(--green-dim); font-size: 14px; }
+    .hero-title {
+      font-family: var(--mono); font-size: 52px; font-weight: 700;
+      line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 20px; color: var(--text);
+    }
+    .hero-sub { font-size: 14px; color: var(--text-dim); line-height: 1.75; margin-bottom: 32px; max-width: 400px; }
+    .hero-actions { display: flex; gap: 12px; }
+    .btn-primary { font-family: var(--mono); font-size: 12px; color: var(--bg); background: var(--green); border: none; padding: 13px 28px; cursor: pointer; letter-spacing: 0.08em; transition: opacity 0.15s; text-decoration: none; display: inline-block; }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-ghost { font-family: var(--mono); font-size: 12px; color: var(--text-muted); border: 1px solid var(--border-light); padding: 12px 28px; cursor: pointer; letter-spacing: 0.08em; transition: all 0.15s; background: transparent; text-decoration: none; display: inline-block; }
+    .btn-ghost:hover { color: var(--green); border-color: var(--green-dim); }
+
+    /* TERMINAL */
+    .hero-right { position: relative; z-index: 1; }
+    .terminal { background: var(--bg-2); border: 1px solid var(--border-light); font-family: var(--mono); }
+    .term-bar { display: flex; align-items: center; background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .term-dots { display: flex; gap: 5px; padding: 10px 14px; }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .term-tabs { display: flex; flex: 1; border-left: 1px solid var(--border); }
+    .term-tab { font-size: 11px; padding: 0 14px; height: 34px; display: flex; align-items: center; color: var(--text-muted); cursor: pointer; border-right: 1px solid var(--border); letter-spacing: 0.04em; }
+    .term-tab.active { background: rgba(46,204,113,0.06); color: var(--green); border-bottom: 1px solid var(--green); }
+    .term-body { padding: 20px; font-size: 12px; line-height: 2; }
+    .term-line { display: flex; align-items: flex-start; gap: 8px; }
+    .term-prompt { color: var(--green-dim); flex-shrink: 0; }
+    .term-cmd { color: var(--text); }
+    .term-out { color: var(--text-muted); margin-left: 17px; font-size: 11px; display: block; margin-top: -4px; }
+    .term-success { color: var(--green); }
+    .term-comment { color: var(--text-muted); }
+    .term-str { color: #7DD8CB; }
+    .term-sp { height: 6px; }
+    .cursor { display: inline-block; width: 7px; height: 13px; background: var(--green); animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* STATS BAR */
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      background: var(--bg-2);
+    }
+    .stat-cell { padding: 24px 32px; border-right: 1px solid var(--border); }
+    .stat-cell:last-child { border-right: none; }
+    .stat-num { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--green); margin-bottom: 4px; }
+    .stat-label { font-size: 12px; color: var(--text-dim); }
+    .stat-note { font-family: var(--mono); font-size: 10px; color: var(--green-mid); margin-top: 2px; }
+
+    /* SECTION SCAFFOLDING */
+    section { padding: 80px 48px; border-bottom: 1px solid var(--border); }
+    .section-eyebrow { font-family: var(--mono); font-size: 10px; color: var(--green-dim); letter-spacing: 0.14em; margin-bottom: 12px; }
+    .section-title { font-family: var(--mono); font-size: 32px; font-weight: 700; color: var(--text); line-height: 1.15; margin-bottom: 10px; letter-spacing: -0.01em; }
+    .section-sub { font-size: 14px; color: var(--text-dim); line-height: 1.7; max-width: 480px; }
+
+    /* HOW IT WORKS */
+    .how-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; align-items: start; }
+    .step { display: flex; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+    .step:last-child { border-bottom: none; }
+    .step-num { font-family: var(--mono); font-size: 11px; color: var(--green-dim); padding-top: 2px; width: 24px; flex-shrink: 0; }
+    .step-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .step-desc { font-size: 12px; color: var(--text-dim); line-height: 1.65; }
+    .step-code { font-family: var(--mono); font-size: 10px; background: var(--bg-3); border: 1px solid var(--border-light); padding: 5px 10px; margin-top: 8px; color: var(--green-dim); display: inline-block; letter-spacing: 0.02em; }
+
+    /* DARK FEATURE SECTION */
+    .features-section { background: var(--bg-2); }
+    .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 40px; }
+    .feature-card { background: var(--bg-2); padding: 24px; }
+    .feature-card:hover { background: var(--bg-3); }
+    .feature-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+    .feature-desc { font-size: 12px; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+    .feature-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ftag { font-family: var(--mono); font-size: 9px; padding: 2px 8px; border: 0.5px solid var(--border-light); color: var(--text-muted); letter-spacing: 0.04em; }
+
+    /* LIVE THREAT FEED MOCK */
+    .threat-mock { border: 1px solid var(--border-light); margin-top: 0; }
+    .threat-mock-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .threat-mock-title { font-family: var(--mono); font-size: 11px; color: var(--text); }
+    .threat-mock-badge { font-family: var(--mono); font-size: 9px; padding: 2px 8px; background: rgba(46,204,113,0.08); color: var(--green); border: 0.5px solid rgba(46,204,113,0.2); }
+    .threat-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #0d0d0d; font-size: 11px; }
+    .threat-row:last-child { border-bottom: none; }
+    .threat-badge { font-family: var(--mono); font-size: 9px; padding: 2px 8px; flex-shrink: 0; }
+    .badge-crit { background: rgba(231,76,60,0.08); color: var(--red); border: 0.5px solid rgba(231,76,60,0.2); }
+    .badge-warn { background: rgba(241,196,15,0.08); color: var(--yellow); border: 0.5px solid rgba(241,196,15,0.2); }
+    .badge-info { background: rgba(46,204,113,0.08); color: var(--green); border: 0.5px solid rgba(46,204,113,0.2); }
+    .threat-desc { font-family: var(--mono); font-size: 10px; color: var(--text-dim); flex: 1; }
+    .threat-ip { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+    .threat-time { font-family: var(--mono); font-size: 10px; color: var(--text-muted); min-width: 40px; text-align: right; }
+
+    /* SDK SECTION */
+    .sdk-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 32px; }
+    .sdk-card { background: var(--bg-2); padding: 20px; }
+    .sdk-card:hover { background: var(--bg-3); }
+    .sdk-lang { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .sdk-cmd { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-bottom: 10px; }
+    .sdk-tag { font-family: var(--mono); font-size: 9px; padding: 2px 8px; letter-spacing: 0.04em; }
+    .tag-live { background: rgba(46,204,113,0.08); color: var(--green); border: 0.5px solid rgba(46,204,113,0.2); }
+    .tag-soon { background: rgba(255,255,255,0.03); color: var(--text-muted); border: 0.5px solid var(--border-light); }
+    .tag-any { background: rgba(59,130,246,0.08); color: var(--blue); border: 0.5px solid rgba(59,130,246,0.2); }
+
+    /* WAITLIST */
+    .waitlist-section { text-align: center; }
+    .waitlist-title { font-family: var(--mono); font-size: 36px; font-weight: 700; color: var(--text); margin-bottom: 12px; letter-spacing: -0.01em; }
+    .waitlist-sub { font-size: 14px; color: var(--text-dim); line-height: 1.7; margin-bottom: 28px; }
+    .waitlist-form { display: flex; max-width: 400px; margin: 0 auto; border: 1px solid var(--border-light); }
+    .waitlist-input { flex: 1; border: none; background: var(--bg-2); padding: 12px 16px; font-size: 13px; color: var(--text); font-family: var(--sans); outline: none; }
+    .waitlist-input::placeholder { color: var(--text-muted); }
+    .waitlist-btn { font-family: var(--mono); font-size: 11px; padding: 12px 20px; background: var(--green); color: var(--bg); border: none; cursor: pointer; letter-spacing: 0.06em; white-space: nowrap; transition: opacity 0.15s; }
+    .waitlist-btn:hover { opacity: 0.85; }
+    .waitlist-note { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 10px; letter-spacing: 0.04em; }
+
+    /* DOCS PREVIEW */
+    .docs-section { padding: 0; background: var(--bg-2); }
+    .docs-topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 48px; border-bottom: 1px solid var(--border); }
+    .docs-logo { display: flex; align-items: center; gap: 8px; }
+    .docs-logo-name { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--text); }
+    .docs-logo-name em { color: var(--green); font-style: normal; }
+    .docs-nav-links { display: flex; gap: 2px; }
+    .docs-nav-link { font-family: var(--mono); font-size: 11px; color: var(--text-muted); padding: 6px 12px; cursor: pointer; letter-spacing: 0.04em; transition: color 0.15s; }
+    .docs-nav-link.active { color: var(--green); }
+    .docs-nav-link:hover { color: var(--green); }
+    .docs-access-btn { font-family: var(--mono); font-size: 11px; color: var(--bg); background: var(--green); border: none; padding: 7px 16px; cursor: pointer; letter-spacing: 0.06em; }
+
+    .docs-layout { display: grid; grid-template-columns: 220px 1fr 180px; min-height: 480px; }
+    .docs-sidebar { border-right: 1px solid var(--border); padding: 20px 0; }
+    .docs-search { display: flex; align-items: center; gap: 8px; background: var(--bg-3); border: 1px solid var(--border-light); padding: 8px 12px; margin: 0 12px 20px; cursor: pointer; }
+    .docs-search-placeholder { font-family: var(--mono); font-size: 11px; color: var(--text-muted); flex: 1; }
+    .docs-search-key { font-family: var(--mono); font-size: 9px; color: var(--text-muted); border: 1px solid var(--border-light); padding: 1px 5px; }
+    .docs-sb-section { margin-bottom: 20px; }
+    .docs-sb-title { font-family: var(--mono); font-size: 9px; color: var(--green-dim); letter-spacing: 0.12em; padding: 0 16px; margin-bottom: 6px; }
+    .docs-sb-item { display: flex; align-items: center; gap: 8px; font-size: 11px; padding: 6px 16px; color: var(--text-muted); cursor: pointer; border-left: 2px solid transparent; transition: all 0.1s; font-family: var(--mono); }
+    .docs-sb-item:hover { color: var(--text-dim); }
+    .docs-sb-item.active { color: var(--green); border-left-color: var(--green); background: rgba(46,204,113,0.04); }
+
+    .docs-main { padding: 28px 32px; border-right: 1px solid var(--border); }
+    .docs-breadcrumb { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.04em; }
+    .docs-breadcrumb span.active { color: var(--green); }
+    .docs-h1 { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -0.01em; }
+    .docs-lead { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .docs-h2 { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; margin-top: 22px; }
+    .docs-p { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
+    .docs-code { background: var(--bg-3); border: 1px solid var(--border-light); border-left: 2px solid var(--green-dim); padding: 16px 18px; font-family: var(--mono); font-size: 11px; color: var(--text); margin-bottom: 14px; line-height: 1.9; position: relative; overflow-x: auto; }
+    .docs-code-lang { position: absolute; top: 8px; right: 12px; font-size: 9px; color: var(--text-muted); letter-spacing: 0.06em; }
+    .docs-note { background: rgba(46,204,113,0.04); border: 1px solid rgba(46,204,113,0.15); border-left: 2px solid var(--green-dim); padding: 12px 14px; font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 14px; }
+    .docs-inline { font-family: var(--mono); font-size: 11px; background: var(--bg-3); border: 1px solid var(--border-light); padding: 1px 6px; color: var(--green); }
+    .docs-pagination { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .docs-pag-card { border: 1px solid var(--border-light); padding: 12px 14px; cursor: pointer; transition: border-color 0.15s; }
+    .docs-pag-card:hover { border-color: var(--green-dim); }
+    .docs-pag-dir { font-family: var(--mono); font-size: 9px; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.06em; }
+    .docs-pag-title { font-family: var(--mono); font-size: 12px; color: var(--text); }
+
+    .docs-toc { padding: 20px 16px; }
+    .docs-toc-title { font-family: var(--mono); font-size: 9px; color: var(--green-dim); letter-spacing: 0.12em; margin-bottom: 12px; }
+    .docs-toc-item { font-family: var(--mono); font-size: 11px; color: var(--text-muted); padding: 4px 0; cursor: pointer; display: block; letter-spacing: 0.02em; transition: color 0.15s; border-left: 2px solid transparent; padding-left: 8px; }
+    .docs-toc-item:hover { color: var(--text-dim); }
+    .docs-toc-item.active { color: var(--green); border-left-color: var(--green); }
+
+    /* FOOTER */
+    footer { background: var(--bg-2); border-top: 1px solid var(--border); padding: 48px; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; }
+    .footer-brand { font-family: var(--mono); }
+    .footer-logo { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .footer-logo-name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .footer-logo-name em { color: var(--green); font-style: normal; }
+    .footer-tagline { font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+    .footer-col-title { font-family: var(--mono); font-size: 9px; color: var(--green-dim); letter-spacing: 0.12em; margin-bottom: 14px; }
+    .footer-link { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 8px; cursor: pointer; text-decoration: none; transition: color 0.15s; }
+    .footer-link:hover { color: var(--green); }
+    .footer-bottom { background: var(--bg); border-top: 1px solid var(--border); padding: 16px 48px; display: flex; justify-content: space-between; align-items: center; }
+    .footer-copy { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+    .footer-socials { display: flex; gap: 20px; }
+    .footer-social { font-family: var(--mono); font-size: 10px; color: var(--text-muted); cursor: pointer; letter-spacing: 0.04em; transition: color 0.15s; }
+    .footer-social:hover { color: var(--green); }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 100px 20px 60px; gap: 40px; }
+      .hero-title { font-size: 36px; }
+      .stats-bar { grid-template-columns: 1fr; }
+      section { padding: 60px 20px; }
+      .how-grid { grid-template-columns: 1fr; gap: 32px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .sdk-grid { grid-template-columns: repeat(2, 1fr); }
+      .docs-layout { grid-template-columns: 1fr; }
+      .docs-sidebar, .docs-toc { display: none; }
+      footer { grid-template-columns: 1fr 1fr; gap: 24px; padding: 32px 20px; }
+      .footer-brand { grid-column: 1 / -1; }
+      .footer-bottom { padding: 16px 20px; flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-icon">
+      <svg width="12" height="12" viewBox="0 0 22 22" fill="none">
+        <polygon points="11,1 21,6.5 21,15.5 11,21 1,15.5 1,6.5" fill="none" stroke="#3FB6A8" stroke-width="1.3"/>
+        <circle cx="11" cy="11" r="2.5" fill="#3FB6A8"/>
+        <line x1="11" y1="1" x2="11" y2="8.5" stroke="#3FB6A8" stroke-width="0.9"/>
+        <line x1="21" y1="6.5" x2="14.8" y2="10" stroke="#3FB6A8" stroke-width="0.9"/>
+        <line x1="21" y1="15.5" x2="14.8" y2="12" stroke="#3FB6A8" stroke-width="0.9"/>
+        <line x1="11" y1="21" x2="11" y2="13.5" stroke="#3FB6A8" stroke-width="0.9"/>
+        <line x1="1" y1="15.5" x2="7.2" y2="12" stroke="#3FB6A8" stroke-width="0.9"/>
+        <line x1="1" y1="6.5" x2="7.2" y2="10" stroke="#3FB6A8" stroke-width="0.9"/>
+      </svg>
+    </div>
+    <span class="nav-name">Shield<em>Gate</em></span>
+  </a>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="#docs" class="nav-link">Docs</a>
+    <a href="#" class="nav-link">Changelog</a>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn-ghost">Sign in</button>
+    <button class="nav-btn-primary">Start free →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-left">
+    <div class="hero-tag">LAUNCHING JUNE 24, 2027</div>
+    <h1 class="hero-title">API security<br>without the<br>complexity.</h1>
+    <p class="hero-sub">Rate limiting, IP blocking, brute force detection, and full audit logs. One SDK. Five minutes to integrate. Works with Python, Node.js, Go, and any language via REST.</p>
+    <div class="hero-actions">
+      <a href="#waitlist" class="btn-primary">Join the waitlist</a>
+      <a href="#docs" class="btn-ghost">Read the docs</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="terminal">
+      <div class="term-bar">
+        <div class="term-dots">
+          <div class="term-dot" style="background:#3a1a1a;"></div>
+          <div class="term-dot" style="background:#3a3a1a;"></div>
+          <div class="term-dot" style="background:#1a3a1a;"></div>
+        </div>
+        <div class="term-tabs">
+          <div class="term-tab active">Python</div>
+          <div class="term-tab">Node.js</div>
+          <div class="term-tab">Go</div>
+          <div class="term-tab">REST</div>
+        </div>
+      </div>
+      <div class="term-body">
+        <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">pip install shieldgate</span></div>
+        <span class="term-out term-success">Successfully installed shieldgate-1.0.0</span>
+        <div class="term-sp"></div>
+        <div class="term-line"><span class="term-prompt" style="color:var(--green-dim)">#</span><span class="term-comment">settings.py — two lines to protect your API</span></div>
+        <div class="term-line"><span class="term-prompt" style="color:var(--green-dim)"> </span><span class="term-cmd">SHIELDGATE_API_KEY = <span class="term-str">"sg_live_abc123"</span></span></div>
+        <div class="term-line"><span class="term-prompt" style="color:var(--green-dim)"> </span><span class="term-cmd">MIDDLEWARE = [<span class="term-str">"shieldgate.ShieldGateMiddleware"</span>, ...]</span></div>
+        <div class="term-sp"></div>
+        <span class="term-out term-success">✓ Rate limiting active — 500K req/day</span>
+        <span class="term-out term-success">✓ IP blacklist synced — 0.8ms latency</span>
+        <span class="term-out term-success">✓ Brute force detection enabled</span>
+        <span class="term-out term-success">✓ Audit logging active<span class="cursor"></span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-cell">
+    <div class="stat-num">2.4M</div>
+    <div class="stat-label">Requests protected today</div>
+    <div class="stat-note">+12% from yesterday</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-num">0.8ms</div>
+    <div class="stat-label">Gateway overhead</div>
+    <div class="stat-note">p99 — healthy</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-num">99.98%</div>
+    <div class="stat-label">Uptime last 30 days</div>
+    <div class="stat-note">all systems operational</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="how-grid">
+    <div>
+      <div class="section-eyebrow">// HOW IT WORKS</div>
+      <div class="section-title">Three steps.<br>Your API is<br>protected.</div>
+      <p class="section-sub" style="margin-top:12px;">No DevOps knowledge required. No infrastructure to manage. Install the SDK, add your API key, and ShieldGate handles the rest from a dashboard you control.</p>
+    </div>
+    <div>
+      <div class="step">
+        <div class="step-num">01</div>
+        <div>
+          <div class="step-title">Create an account — get your API key</div>
+          <div class="step-desc">Sign up at shieldgate.dev. Your API key is generated instantly. No credit card required on the free plan.</div>
+          <div class="step-code">sg_live_4xK9mR2nPqWz...</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div>
+          <div class="step-title">Install the SDK for your language</div>
+          <div class="step-desc">Python, Node.js, or Go — install the package, add two lines of config. Any language that can make an HTTP request works via REST.</div>
+          <div class="step-code">pip install shieldgate &nbsp;|&nbsp; npm install shieldgate &nbsp;|&nbsp; go get shieldgate/sdk</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div>
+          <div class="step-title">Manage everything from the dashboard</div>
+          <div class="step-desc">View live threats, manage IP blacklists, configure rate limit thresholds, set alert rules, and rotate API keys — no command line needed after setup.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="features-section">
+  <div class="section-eyebrow">// BUILT FOR PRODUCTION</div>
+  <div class="section-title">Every request inspected.<br>In milliseconds.</div>
+  <p class="section-sub" style="margin-top:10px;">ShieldGate middleware runs inside your app — checking Redis for blacklists and rate counters before your endpoint ever sees the request.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-title">Rate limiting engine</div>
+      <div class="feature-desc">Atomic Redis INCR counters — the block happens in under 1ms, before your view function runs. Configurable per API key, per IP, or both.</div>
+      <div class="feature-tags"><span class="ftag">Redis INCR</span><span class="ftag">sub-1ms</span><span class="ftag">per-key</span><span class="ftag">per-IP</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="threat-mock">
+        <div class="threat-mock-bar">
+          <span class="threat-mock-title">// Live threat feed</span>
+          <span class="threat-mock-badge">3 active blocks</span>
+        </div>
+        <div class="threat-row"><span class="threat-badge badge-crit">CRITICAL</span><span class="threat-desc">Brute force — 94 failed logins/60s</span><span class="threat-ip">45.33.12.88</span><span class="threat-time">2m ago</span></div>
+        <div class="threat-row"><span class="threat-badge badge-warn">WARNING</span><span class="threat-desc">Rate limit — 500 req/min exceeded</span><span class="threat-ip">198.51.100.2</span><span class="threat-time">7m ago</span></div>
+        <div class="threat-row"><span class="threat-badge badge-info">INFO</span><span class="threat-desc">Endpoint scan — 34 routes in 2min</span><span class="threat-ip">172.16.0.33</span><span class="threat-time">18m ago</span></div>
+        <div class="threat-row"><span class="threat-badge badge-crit">CRITICAL</span><span class="threat-desc">Permanent block — bypass attempts</span><span class="threat-ip">103.21.244.0</span><span class="threat-time">1h ago</span></div>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">Brute force detection</div>
+      <div class="feature-desc">Counts failed authentication attempts per IP. Automatic lockout after the threshold you set. Duration fully configurable from your dashboard.</div>
+      <div class="feature-tags"><span class="ftag">auto-block</span><span class="ftag">configurable</span><span class="ftag">email alerts</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">Full audit logging</div>
+      <div class="feature-desc">Every request recorded — method, path, IP, status code, latency, whether it was blocked. Searchable and filterable. Retained 7 days on free, up to 1 year on Scale.</div>
+      <div class="feature-tags"><span class="ftag">searchable</span><span class="ftag">exportable</span><span class="ftag">compliance-ready</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SDK -->
+<section id="sdk">
+  <div style="text-align:center; margin-bottom:4px;"><div class="section-eyebrow" style="display:inline-block;">// MULTI-LANGUAGE SUPPORT</div></div>
+  <div class="section-title" style="text-align:center; font-size:28px; margin-bottom:8px;">Works with your stack.</div>
+  <p class="section-sub" style="text-align:center; margin:0 auto;">Native SDKs for Python, Node.js, and Go. TypeScript is covered by the Node.js SDK with full type definitions. Any other language uses the REST API directly.</p>
+  <div class="sdk-grid">
+    <div class="sdk-card">
+      <div class="sdk-lang">Python</div>
+      <div class="sdk-cmd">pip install shieldgate</div>
+      <span class="sdk-tag tag-live">Available at launch</span>
+    </div>
+    <div class="sdk-card">
+      <div class="sdk-lang">Node.js + TS</div>
+      <div class="sdk-cmd">npm install shieldgate</div>
+      <span class="sdk-tag tag-live">Available at launch</span>
+    </div>
+    <div class="sdk-card">
+      <div class="sdk-lang">Go</div>
+      <div class="sdk-cmd">go get shieldgate/sdk</div>
+      <span class="sdk-tag tag-live">Available at launch</span>
+    </div>
+    <div class="sdk-card">
+      <div class="sdk-lang">REST API</div>
+      <div class="sdk-cmd">Any language</div>
+      <span class="sdk-tag tag-any">PHP · Ruby · Java · Swift</span>
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section id="waitlist" class="waitlist-section">
+  <div class="section-eyebrow" style="display:inline-block; margin-bottom:12px;">// EARLY ACCESS</div>
+  <div class="waitlist-title">Join the waitlist.</div>
+  <p class="waitlist-sub">Be the first to know when ShieldGate launches — June 24, 2027.<br>Early access users get 3 months free on any paid plan.</p>
+  <form class="waitlist-form" id="waitlist-form">
+    <input class="waitlist-input" type="email" id="waitlist-email" name="email" placeholder="your@email.com" required autocomplete="email" />
+    <button class="waitlist-btn" type="submit">[ JOIN WAITLIST ]</button>
+  </form>
+  <div class="waitlist-note" id="waitlist-note">// No spam. Unsubscribe anytime.</div>
+</section>
+
+<script>
+  // Replace FORM_ENDPOINT with your Formspree (or similar) endpoint before deploying.
+  // Sign up free at https://formspree.io, create a form, and paste its endpoint URL here.
+  const FORM_ENDPOINT = "https://formspree.io/f/mojogrzb";
+
+  const waitlistForm = document.getElementById('waitlist-form');
+  const waitlistNote = document.getElementById('waitlist-note');
+
+  waitlistForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('waitlist-email').value;
+    const button = waitlistForm.querySelector('button');
+    const originalText = button.textContent;
+    button.textContent = '[ SUBMITTING... ]';
+    button.disabled = true;
+
+    try {
+      const response = await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      if (response.ok) {
+        waitlistForm.style.display = 'none';
+        waitlistNote.textContent = "// You're on the list. We'll be in touch before launch.";
+      } else {
+        button.textContent = originalText;
+        button.disabled = false;
+        waitlistNote.textContent = '// Something went wrong — try again in a moment.';
+      }
+    } catch (err) {
+      button.textContent = originalText;
+      button.disabled = false;
+      waitlistNote.textContent = '// Something went wrong — try again in a moment.';
+    }
+  });
+</script>
+
+<!-- DOCS PREVIEW -->
+<div class="docs-section" id="docs">
+  <div class="docs-topbar">
+    <div class="docs-logo">
+      <div class="nav-icon" style="width:22px; height:22px;">
+        <svg width="10" height="10" viewBox="0 0 22 22" fill="none">
+          <polygon points="11,1 21,6.5 21,15.5 11,21 1,15.5 1,6.5" fill="none" stroke="#3FB6A8" stroke-width="1.3"/>
+          <circle cx="11" cy="11" r="2.5" fill="#3FB6A8"/>
+        </svg>
+      </div>
+      <span class="docs-logo-name">Shield<em>Gate</em> Docs</span>
+    </div>
+    <div class="docs-nav-links">
+      <span class="docs-nav-link active">Guides</span>
+      <span class="docs-nav-link">API Reference</span>
+      <span class="docs-nav-link">Changelog</span>
+    </div>
+    <button class="docs-access-btn">[ Dashboard → ]</button>
+  </div>
+  <div class="docs-layout">
+    <div class="docs-sidebar">
+      <div class="docs-search">
+        <span style="font-size:11px; color:var(--text-muted);">›</span>
+        <span class="docs-search-placeholder">Search docs...</span>
+        <span class="docs-search-key">⌘K</span>
+      </div>
+      <div class="docs-sb-section">
+        <div class="docs-sb-title">// GETTING STARTED</div>
+        <div class="docs-sb-item">Introduction</div>
+        <div class="docs-sb-item">Quick start</div>
+        <div class="docs-sb-item">Authentication</div>
+      </div>
+      <div class="docs-sb-section">
+        <div class="docs-sb-title">// SDKs</div>
+        <div class="docs-sb-item active">Python SDK</div>
+        <div class="docs-sb-item">Node.js SDK</div>
+        <div class="docs-sb-item">Go SDK</div>
+        <div class="docs-sb-item">REST API</div>
+      </div>
+      <div class="docs-sb-section">
+        <div class="docs-sb-title">// FEATURES</div>
+        <div class="docs-sb-item">Rate limiting</div>
+        <div class="docs-sb-item">IP blacklisting</div>
+        <div class="docs-sb-item">Brute force</div>
+        <div class="docs-sb-item">Audit logs</div>
+        <div class="docs-sb-item">Alert rules</div>
+      </div>
+      <div class="docs-sb-section">
+        <div class="docs-sb-title">// FRAMEWORKS</div>
+        <div class="docs-sb-item">Django</div>
+        <div class="docs-sb-item">FastAPI</div>
+        <div class="docs-sb-item">Express</div>
+        <div class="docs-sb-item">NestJS</div>
+        <div class="docs-sb-item">Gin</div>
+      </div>
+    </div>
+    <div class="docs-main">
+      <div class="docs-breadcrumb">
+        <span>Docs</span>
+        <span style="color:var(--text-muted);">›</span>
+        <span>SDKs</span>
+        <span style="color:var(--text-muted);">›</span>
+        <span class="active">Python SDK</span>
+      </div>
+      <div class="docs-h1">Python SDK</div>
+      <div class="docs-lead">The ShieldGate Python SDK is a lightweight middleware package for Django, FastAPI, and Flask. It connects your application to ShieldGate's security layer in under five minutes.</div>
+      <div class="docs-h2">// Installation</div>
+      <div class="docs-code">
+        <span class="docs-code-lang">BASH</span>
+        pip install shieldgate
+      </div>
+      <div class="docs-h2">// Django integration</div>
+      <div class="docs-p">Add your API key and the middleware class to <span class="docs-inline">settings.py</span>. That is all the configuration required.</div>
+      <div class="docs-code">
+        <span class="docs-code-lang">PYTHON</span>
+        <span style="color:var(--text-muted)"># settings.py</span><br>
+        SHIELDGATE_API_KEY = <span style="color:#7DD8CB">"sg_live_abc123"</span><br><br>
+        MIDDLEWARE = [<br>
+        &nbsp;&nbsp;<span style="color:#7DD8CB">"shieldgate.ShieldGateMiddleware"</span>,<span style="color:var(--text-muted)"> # add first</span><br>
+        &nbsp;&nbsp;<span style="color:var(--text-muted)"># ... your existing middleware</span><br>
+        ]
+      </div>
+      <div class="docs-note">
+        The ShieldGate middleware must be placed at the top of your <span class="docs-inline">MIDDLEWARE</span> list so it inspects every request before any other middleware runs.
+      </div>
+      <div class="docs-pagination">
+        <div class="docs-pag-card">
+          <div class="docs-pag-dir">← PREVIOUS</div>
+          <div class="docs-pag-title">Authentication</div>
+        </div>
+        <div class="docs-pag-card" style="text-align:right;">
+          <div class="docs-pag-dir" style="justify-content:flex-end;">NEXT →</div>
+          <div class="docs-pag-title">Node.js SDK</div>
+        </div>
+      </div>
+    </div>
+    <div class="docs-toc">
+      <div class="docs-toc-title">// ON THIS PAGE</div>
+      <a class="docs-toc-item active">Installation</a>
+      <a class="docs-toc-item">Django integration</a>
+      <a class="docs-toc-item">FastAPI integration</a>
+      <a class="docs-toc-item">Flask integration</a>
+      <a class="docs-toc-item">Configuration options</a>
+      <a class="docs-toc-item">Environment variables</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div class="footer-logo">
+      <div class="nav-icon" style="width:22px;height:22px;">
+        <svg width="10" height="10" viewBox="0 0 22 22" fill="none">
+          <polygon points="11,1 21,6.5 21,15.5 11,21 1,15.5 1,6.5" fill="none" stroke="#3FB6A8" stroke-width="1.3"/>
+          <circle cx="11" cy="11" r="2.5" fill="#3FB6A8"/>
+        </svg>
+      </div>
+      <span class="footer-logo-name">Shield<em>Gate</em></span>
+    </div>
+    <div class="footer-tagline">API gateway and security as a service.<br>Built for developers. Priced for Africa.</div>
+  </div>
+  <div>
+    <div class="footer-col-title">// PRODUCT</div>
+    <a class="footer-link">Features</a>
+    <a class="footer-link">Pricing</a>
+    <a class="footer-link">Changelog</a>
+    <a class="footer-link">Roadmap</a>
+  </div>
+  <div>
+    <div class="footer-col-title">// RESOURCES</div>
+    <a class="footer-link">Documentation</a>
+    <a class="footer-link">API reference</a>
+    <a class="footer-link">Status</a>
+    <a class="footer-link">Tutorials</a>
+  </div>
+  <div>
+    <div class="footer-col-title">// LEGAL</div>
+    <a class="footer-link">Privacy policy</a>
+    <a class="footer-link">Terms of service</a>
+    <a class="footer-link">Security</a>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <div class="footer-copy">© 2027 ShieldGate. All rights reserved.</div>
+  <div class="footer-socials">
+    <span class="footer-social">X (Twitter)</span>
+    <span class="footer-social">GitHub</span>
+    <span class="footer-social">LinkedIn</span>
+  </div>
+</div>
+
+</body>
+</html>
