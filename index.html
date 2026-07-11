@@ -27,12 +27,25 @@
       --bg-2: #0d0d0d;
       --bg-3: #111;
       --text: #e8e8e4;
-      --text-dim: #666;
-      --text-muted: #333;
+      --text-dim: #7a7a7a;
+      --text-muted: #565f66;
       --scanline: rgba(0,0,0,0.04);
       --overlay-soft: rgba(255,255,255,0.03);
       --mono: 'Courier Prime', monospace;
       --sans: 'Inter', sans-serif;
+    }
+
+    /* Fixed tokens for code/terminal elements — these never follow the page theme,
+       code surfaces stay dark in both light and dark mode by design */
+    :root {
+      --term-bg: #0d0d0d;
+      --term-bg-3: #111;
+      --term-border: #1a1a1a;
+      --term-border-2: #111;
+      --term-text: #e8e8e4;
+      --term-text-dim: #7a7a7a;
+      --term-text-muted: #5e6870;
+      --term-green-dim: #2E7A70;
     }
 
     html[data-theme="light"] {
@@ -131,20 +144,21 @@
 
     /* TERMINAL */
     .hero-right { position: relative; z-index: 1; }
-    .terminal { background: var(--bg-2); border: 1px solid var(--border-light); font-family: var(--mono); }
-    .term-bar { display: flex; align-items: center; background: var(--bg-3); border-bottom: 1px solid var(--border); }
+    .terminal { background: var(--term-bg); border: 1px solid var(--term-border); font-family: var(--mono); }
+    html[data-theme="light"] .terminal { box-shadow: 0 24px 60px -24px rgba(var(--green-rgb),0.35); }
+    .term-bar { display: flex; align-items: center; background: var(--term-bg-3); border-bottom: 1px solid var(--term-border-2); }
     .term-dots { display: flex; gap: 5px; padding: 10px 14px; }
     .term-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .term-tabs { display: flex; flex: 1; border-left: 1px solid var(--border); }
-    .term-tab { font-size: 11px; padding: 0 14px; height: 34px; display: flex; align-items: center; color: var(--text-muted); cursor: pointer; border-right: 1px solid var(--border); letter-spacing: 0.04em; }
+    .term-tabs { display: flex; flex: 1; border-left: 1px solid var(--term-border-2); }
+    .term-tab { font-size: 11px; padding: 0 14px; height: 34px; display: flex; align-items: center; color: var(--term-text-muted); cursor: pointer; border-right: 1px solid var(--term-border-2); letter-spacing: 0.04em; }
     .term-tab.active { background: rgba(var(--green-rgb),0.06); color: var(--green); border-bottom: 1px solid var(--green); }
     .term-body { padding: 20px; font-size: 12px; line-height: 2; }
     .term-line { display: flex; align-items: flex-start; gap: 8px; }
-    .term-prompt { color: var(--green-dim); flex-shrink: 0; }
-    .term-cmd { color: var(--text); }
-    .term-out { color: var(--text-muted); margin-left: 17px; font-size: 11px; display: block; margin-top: -4px; }
+    .term-prompt { color: var(--term-green-dim); flex-shrink: 0; }
+    .term-cmd { color: var(--term-text); }
+    .term-out { color: var(--term-text-muted); margin-left: 17px; font-size: 11px; display: block; margin-top: -4px; }
     .term-success { color: var(--green); }
-    .term-comment { color: var(--text-muted); }
+    .term-comment { color: var(--term-text-muted); }
     .term-str { color: #7DD8CB; }
     .term-sp { height: 6px; }
     .cursor { display: inline-block; width: 7px; height: 13px; background: var(--green); animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
@@ -175,7 +189,7 @@
     .step-num { font-family: var(--mono); font-size: 11px; color: var(--green-dim); padding-top: 2px; width: 24px; flex-shrink: 0; }
     .step-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
     .step-desc { font-size: 12px; color: var(--text-dim); line-height: 1.65; }
-    .step-code { font-family: var(--mono); font-size: 10px; background: var(--bg-3); border: 1px solid var(--border-light); padding: 5px 10px; margin-top: 8px; color: var(--green-dim); display: inline-block; letter-spacing: 0.02em; }
+    .step-code { font-family: var(--mono); font-size: 10px; background: var(--term-bg-3); border: 1px solid var(--term-border); padding: 5px 10px; margin-top: 8px; color: var(--term-green-dim); display: inline-block; letter-spacing: 0.02em; }
 
     /* DARK FEATURE SECTION */
     .features-section { background: var(--bg-2); }
@@ -255,10 +269,10 @@
     .docs-lead { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
     .docs-h2 { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; margin-top: 22px; }
     .docs-p { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
-    .docs-code { background: var(--bg-3); border: 1px solid var(--border-light); border-left: 2px solid var(--green-dim); padding: 16px 18px; font-family: var(--mono); font-size: 11px; color: var(--text); margin-bottom: 14px; line-height: 1.9; position: relative; overflow-x: auto; }
-    .docs-code-lang { position: absolute; top: 8px; right: 12px; font-size: 9px; color: var(--text-muted); letter-spacing: 0.06em; }
+    .docs-code { background: var(--term-bg-3); border: 1px solid var(--term-border); border-left: 2px solid var(--term-green-dim); padding: 16px 18px; font-family: var(--mono); font-size: 11px; color: var(--term-text); margin-bottom: 14px; line-height: 1.9; position: relative; overflow-x: auto; }
+    .docs-code-lang { position: absolute; top: 8px; right: 12px; font-size: 9px; color: var(--term-text-muted); letter-spacing: 0.06em; }
     .docs-note { background: rgba(var(--green-rgb),0.04); border: 1px solid rgba(var(--green-rgb),0.15); border-left: 2px solid var(--green-dim); padding: 12px 14px; font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 14px; }
-    .docs-inline { font-family: var(--mono); font-size: 11px; background: var(--bg-3); border: 1px solid var(--border-light); padding: 1px 6px; color: var(--green); }
+    .docs-inline { font-family: var(--mono); font-size: 11px; background: var(--term-bg-3); border: 1px solid var(--term-border); padding: 1px 6px; color: var(--green); }
     .docs-pagination { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
     .docs-pag-card { border: 1px solid var(--border-light); padding: 12px 14px; cursor: pointer; transition: border-color 0.15s; }
     .docs-pag-card:hover { border-color: var(--green-dim); }
@@ -371,9 +385,9 @@
         <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">pip install shieldgate</span></div>
         <span class="term-out term-success">Successfully installed shieldgate-1.0.0</span>
         <div class="term-sp"></div>
-        <div class="term-line"><span class="term-prompt" style="color:var(--green-dim)">#</span><span class="term-comment">settings.py — two lines to protect your API</span></div>
-        <div class="term-line"><span class="term-prompt" style="color:var(--green-dim)"> </span><span class="term-cmd">SHIELDGATE_API_KEY = <span class="term-str">"sg_live_abc123"</span></span></div>
-        <div class="term-line"><span class="term-prompt" style="color:var(--green-dim)"> </span><span class="term-cmd">MIDDLEWARE = [<span class="term-str">"shieldgate.ShieldGateMiddleware"</span>, ...]</span></div>
+        <div class="term-line"><span class="term-prompt" style="color:var(--term-green-dim)">#</span><span class="term-comment">settings.py — two lines to protect your API</span></div>
+        <div class="term-line"><span class="term-prompt" style="color:var(--term-green-dim)"> </span><span class="term-cmd">SHIELDGATE_API_KEY = <span class="term-str">"sg_live_abc123"</span></span></div>
+        <div class="term-line"><span class="term-prompt" style="color:var(--term-green-dim)"> </span><span class="term-cmd">MIDDLEWARE = [<span class="term-str">"shieldgate.ShieldGateMiddleware"</span>, ...]</span></div>
         <div class="term-sp"></div>
         <span class="term-out term-success">✓ Rate limiting active — 500K req/day</span>
         <span class="term-out term-success">✓ IP blacklist synced — 0.8ms latency</span>
@@ -496,11 +510,6 @@
       <div class="feature-title">Alert system</div>
       <div class="feature-desc">Email and webhook alerts when threat score or usage/spend threshold exceeds a configured value. Set cooldowns so one incident doesn't flood your inbox.</div>
       <div class="feature-tags"><span class="ftag">email + webhook</span><span class="ftag ftag-new">usage/spend alerts NEW</span></div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-title">Swagger / OpenAPI docs</div>
-      <div class="feature-desc">Auto-generated interactive API documentation via drf-spectacular — a live Swagger UI and ReDoc interface documenting every endpoint, ready to try in the browser.</div>
-      <div class="feature-tags"><span class="ftag">auto-generated</span><span class="ftag">try-it-live</span></div>
     </div>
   </div>
 </section>
@@ -660,11 +669,11 @@
       <div class="docs-p">Add your API key and the middleware class to <span class="docs-inline">settings.py</span>. That is all the configuration required.</div>
       <div class="docs-code">
         <span class="docs-code-lang">PYTHON</span>
-        <span style="color:var(--text-muted)"># settings.py</span><br>
+        <span style="color:var(--term-text-muted)"># settings.py</span><br>
         SHIELDGATE_API_KEY = <span style="color:#7DD8CB">"sg_live_abc123"</span><br><br>
         MIDDLEWARE = [<br>
-        &nbsp;&nbsp;<span style="color:#7DD8CB">"shieldgate.ShieldGateMiddleware"</span>,<span style="color:var(--text-muted)"> # add first</span><br>
-        &nbsp;&nbsp;<span style="color:var(--text-muted)"># ... your existing middleware</span><br>
+        &nbsp;&nbsp;<span style="color:#7DD8CB">"shieldgate.ShieldGateMiddleware"</span>,<span style="color:var(--term-text-muted)"> # add first</span><br>
+        &nbsp;&nbsp;<span style="color:var(--term-text-muted)"># ... your existing middleware</span><br>
         ]
       </div>
       <div class="docs-note">
