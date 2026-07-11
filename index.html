@@ -7,12 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
     html { scroll-behavior: smooth; }
-    body { background: #0a0a0a; color: #e8e8e4; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; transition: background 0.2s ease, color 0.2s ease; }
 
-    :root {
+    :root, html[data-theme="dark"] {
       --green: #3FB6A8;
+      --green-rgb: 63,182,168;
       --green-dim: #1E4A45;
       --green-mid: #235F58;
       --red: #e74c3c;
@@ -20,12 +21,40 @@
       --blue: #3b82f6;
       --border: #111;
       --border-light: #1a1a1a;
+      --grid-line: #14191b;
       --bg: #0a0a0a;
+      --bg-rgb: 10,10,10;
       --bg-2: #0d0d0d;
       --bg-3: #111;
       --text: #e8e8e4;
       --text-dim: #666;
       --text-muted: #333;
+      --scanline: rgba(0,0,0,0.04);
+      --overlay-soft: rgba(255,255,255,0.03);
+      --mono: 'Courier Prime', monospace;
+      --sans: 'Inter', sans-serif;
+    }
+
+    html[data-theme="light"] {
+      --green: #3FB6A8;
+      --green-rgb: 63,182,168;
+      --green-dim: #2E7A70;
+      --green-mid: #256F65;
+      --red: #d64533;
+      --yellow: #c9950c;
+      --blue: #2563eb;
+      --border: #DCE2E5;
+      --border-light: #C9D1D5;
+      --grid-line: #B7C2C7;
+      --bg: #F3F5F6;
+      --bg-rgb: 243,245,246;
+      --bg-2: #FFFFFF;
+      --bg-3: #EBEEEF;
+      --text: #10161A;
+      --text-dim: #565F64;
+      --text-muted: #8B959A;
+      --scanline: rgba(16,22,26,0.02);
+      --overlay-soft: rgba(16,22,26,0.03);
       --mono: 'Courier Prime', monospace;
       --sans: 'Inter', sans-serif;
     }
@@ -33,15 +62,24 @@
     /* SCANLINES */
     body::before {
       content: ''; position: fixed; inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, var(--scanline) 2px, var(--scanline) 4px);
       pointer-events: none; z-index: 9999;
     }
+
+    /* THEME TOGGLE */
+    .theme-toggle {
+      font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+      border: 1px solid var(--border-light); background: transparent;
+      padding: 7px 12px; cursor: pointer; letter-spacing: 0.04em;
+      transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+    }
+    .theme-toggle:hover { color: var(--green); border-color: var(--green-dim); }
 
     /* NAV */
     nav {
       position: fixed; top: 0; left: 0; right: 0; height: 56px;
       padding: 0 48px; display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.95);
+      border-bottom: 1px solid var(--border); background: rgba(var(--bg-rgb),0.95);
       backdrop-filter: blur(8px); z-index: 100; font-family: var(--mono);
     }
     .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
@@ -65,12 +103,12 @@
     }
     .hero-grid {
       position: absolute; inset: 0;
-      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 44px 44px; opacity: 0.5;
+      background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+      background-size: 44px 44px; opacity: 0.8;
     }
     .hero-glow {
       position: absolute; width: 500px; height: 500px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(46,204,113,0.04) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(var(--green-rgb),0.04) 0%, transparent 70%);
       top: 50%; left: 25%; transform: translate(-50%, -50%); pointer-events: none;
     }
     .hero-left { position: relative; z-index: 1; }
@@ -99,7 +137,7 @@
     .term-dot { width: 10px; height: 10px; border-radius: 50%; }
     .term-tabs { display: flex; flex: 1; border-left: 1px solid var(--border); }
     .term-tab { font-size: 11px; padding: 0 14px; height: 34px; display: flex; align-items: center; color: var(--text-muted); cursor: pointer; border-right: 1px solid var(--border); letter-spacing: 0.04em; }
-    .term-tab.active { background: rgba(46,204,113,0.06); color: var(--green); border-bottom: 1px solid var(--green); }
+    .term-tab.active { background: rgba(var(--green-rgb),0.06); color: var(--green); border-bottom: 1px solid var(--green); }
     .term-body { padding: 20px; font-size: 12px; line-height: 2; }
     .term-line { display: flex; align-items: flex-start; gap: 8px; }
     .term-prompt { color: var(--green-dim); flex-shrink: 0; }
@@ -148,18 +186,19 @@
     .feature-desc { font-size: 12px; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
     .feature-tags { display: flex; flex-wrap: wrap; gap: 6px; }
     .ftag { font-family: var(--mono); font-size: 9px; padding: 2px 8px; border: 0.5px solid var(--border-light); color: var(--text-muted); letter-spacing: 0.04em; }
+    .ftag-new { border-color: var(--green-dim); color: var(--green); }
 
     /* LIVE THREAT FEED MOCK */
     .threat-mock { border: 1px solid var(--border-light); margin-top: 0; }
     .threat-mock-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border); }
     .threat-mock-title { font-family: var(--mono); font-size: 11px; color: var(--text); }
-    .threat-mock-badge { font-family: var(--mono); font-size: 9px; padding: 2px 8px; background: rgba(46,204,113,0.08); color: var(--green); border: 0.5px solid rgba(46,204,113,0.2); }
-    .threat-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #0d0d0d; font-size: 11px; }
+    .threat-mock-badge { font-family: var(--mono); font-size: 9px; padding: 2px 8px; background: rgba(var(--green-rgb),0.08); color: var(--green); border: 0.5px solid rgba(var(--green-rgb),0.2); }
+    .threat-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 11px; }
     .threat-row:last-child { border-bottom: none; }
     .threat-badge { font-family: var(--mono); font-size: 9px; padding: 2px 8px; flex-shrink: 0; }
     .badge-crit { background: rgba(231,76,60,0.08); color: var(--red); border: 0.5px solid rgba(231,76,60,0.2); }
     .badge-warn { background: rgba(241,196,15,0.08); color: var(--yellow); border: 0.5px solid rgba(241,196,15,0.2); }
-    .badge-info { background: rgba(46,204,113,0.08); color: var(--green); border: 0.5px solid rgba(46,204,113,0.2); }
+    .badge-info { background: rgba(var(--green-rgb),0.08); color: var(--green); border: 0.5px solid rgba(var(--green-rgb),0.2); }
     .threat-desc { font-family: var(--mono); font-size: 10px; color: var(--text-dim); flex: 1; }
     .threat-ip { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
     .threat-time { font-family: var(--mono); font-size: 10px; color: var(--text-muted); min-width: 40px; text-align: right; }
@@ -171,8 +210,8 @@
     .sdk-lang { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .sdk-cmd { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-bottom: 10px; }
     .sdk-tag { font-family: var(--mono); font-size: 9px; padding: 2px 8px; letter-spacing: 0.04em; }
-    .tag-live { background: rgba(46,204,113,0.08); color: var(--green); border: 0.5px solid rgba(46,204,113,0.2); }
-    .tag-soon { background: rgba(255,255,255,0.03); color: var(--text-muted); border: 0.5px solid var(--border-light); }
+    .tag-live { background: rgba(var(--green-rgb),0.08); color: var(--green); border: 0.5px solid rgba(var(--green-rgb),0.2); }
+    .tag-soon { background: var(--overlay-soft); color: var(--text-muted); border: 0.5px solid var(--border-light); }
     .tag-any { background: rgba(59,130,246,0.08); color: var(--blue); border: 0.5px solid rgba(59,130,246,0.2); }
 
     /* WAITLIST */
@@ -207,7 +246,7 @@
     .docs-sb-title { font-family: var(--mono); font-size: 9px; color: var(--green-dim); letter-spacing: 0.12em; padding: 0 16px; margin-bottom: 6px; }
     .docs-sb-item { display: flex; align-items: center; gap: 8px; font-size: 11px; padding: 6px 16px; color: var(--text-muted); cursor: pointer; border-left: 2px solid transparent; transition: all 0.1s; font-family: var(--mono); }
     .docs-sb-item:hover { color: var(--text-dim); }
-    .docs-sb-item.active { color: var(--green); border-left-color: var(--green); background: rgba(46,204,113,0.04); }
+    .docs-sb-item.active { color: var(--green); border-left-color: var(--green); background: rgba(var(--green-rgb),0.04); }
 
     .docs-main { padding: 28px 32px; border-right: 1px solid var(--border); }
     .docs-breadcrumb { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 6px; letter-spacing: 0.04em; }
@@ -218,7 +257,7 @@
     .docs-p { font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 12px; }
     .docs-code { background: var(--bg-3); border: 1px solid var(--border-light); border-left: 2px solid var(--green-dim); padding: 16px 18px; font-family: var(--mono); font-size: 11px; color: var(--text); margin-bottom: 14px; line-height: 1.9; position: relative; overflow-x: auto; }
     .docs-code-lang { position: absolute; top: 8px; right: 12px; font-size: 9px; color: var(--text-muted); letter-spacing: 0.06em; }
-    .docs-note { background: rgba(46,204,113,0.04); border: 1px solid rgba(46,204,113,0.15); border-left: 2px solid var(--green-dim); padding: 12px 14px; font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 14px; }
+    .docs-note { background: rgba(var(--green-rgb),0.04); border: 1px solid rgba(var(--green-rgb),0.15); border-left: 2px solid var(--green-dim); padding: 12px 14px; font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 14px; }
     .docs-inline { font-family: var(--mono); font-size: 11px; background: var(--bg-3); border: 1px solid var(--border-light); padding: 1px 6px; color: var(--green); }
     .docs-pagination { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
     .docs-pag-card { border: 1px solid var(--border-light); padding: 12px 14px; cursor: pointer; transition: border-color 0.15s; }
@@ -292,6 +331,9 @@
     <a href="#" class="nav-link">Changelog</a>
   </div>
   <div class="nav-right">
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle light and dark mode">
+      <span id="theme-toggle-icon">☀</span><span id="theme-toggle-label">LIGHT</span>
+    </button>
     <button class="nav-btn-ghost">Sign in</button>
     <button class="nav-btn-primary">Start free →</button>
   </div>
@@ -429,6 +471,36 @@
       <div class="feature-title">Full audit logging</div>
       <div class="feature-desc">Every request recorded — method, path, IP, status code, latency, whether it was blocked. Searchable and filterable. Retained 7 days on free, up to 1 year on Scale.</div>
       <div class="feature-tags"><span class="ftag">searchable</span><span class="ftag">exportable</span><span class="ftag">compliance-ready</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">IP blacklisting</div>
+      <div class="feature-desc">Manual and automatic blocking, propagated across every request in under one second via Redis. Block a bad actor from the dashboard once — it's gone everywhere instantly.</div>
+      <div class="feature-tags"><span class="ftag">manual + auto</span><span class="ftag">&lt;1s propagation</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">Per-endpoint rate limiting<span class="ftag ftag-new" style="margin-left:8px;">NEW</span></div>
+      <div class="feature-desc">Set different limits per route instead of one blanket limit per key — stricter on /login, looser on /search. The same principle Tyk and Gravitee apply to AI tool calls, useful for any API.</div>
+      <div class="feature-tags"><span class="ftag">per-route</span><span class="ftag">configurable</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">AI traffic awareness<span class="ftag ftag-new" style="margin-left:8px;">NEW</span></div>
+      <div class="feature-desc">Detects when a request hits a known LLM/AI provider pattern, tags it distinctly in the audit log, and applies a separate rate-limit tier. Not a full AI gateway — just enough so ShieldGate isn't blind to agent traffic.</div>
+      <div class="feature-tags"><span class="ftag">pattern detection</span><span class="ftag">separate tier</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">API key management</div>
+      <div class="feature-desc">Generate, rotate, and revoke keys with full lifecycle control from the dashboard. Keys are stored hashed in the database — ShieldGate only keeps a short prefix for identification.</div>
+      <div class="feature-tags"><span class="ftag">hashed storage</span><span class="ftag">instant revoke</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">Alert system</div>
+      <div class="feature-desc">Email and webhook alerts when threat score or usage/spend threshold exceeds a configured value. Set cooldowns so one incident doesn't flood your inbox.</div>
+      <div class="feature-tags"><span class="ftag">email + webhook</span><span class="ftag ftag-new">usage/spend alerts NEW</span></div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-title">Swagger / OpenAPI docs</div>
+      <div class="feature-desc">Auto-generated interactive API documentation via drf-spectacular — a live Swagger UI and ReDoc interface documenting every endpoint, ready to try in the browser.</div>
+      <div class="feature-tags"><span class="ftag">auto-generated</span><span class="ftag">try-it-live</span></div>
     </div>
   </div>
 </section>
@@ -665,5 +737,34 @@
   </div>
 </div>
 
+<script>
+  (function() {
+    const root = document.documentElement;
+    const toggleBtn = document.getElementById('theme-toggle');
+    const icon = document.getElementById('theme-toggle-icon');
+    const label = document.getElementById('theme-toggle-label');
+
+    function applyTheme(theme) {
+      root.setAttribute('data-theme', theme);
+      if (theme === 'light') {
+        icon.textContent = '☾';
+        label.textContent = 'DARK';
+      } else {
+        icon.textContent = '☀';
+        label.textContent = 'LIGHT';
+      }
+    }
+
+    const saved = localStorage.getItem('shieldgate-theme');
+    if (saved === 'dark' || saved === 'light') applyTheme(saved);
+
+    toggleBtn.addEventListener('click', function() {
+      const current = root.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+      localStorage.setItem('shieldgate-theme', next);
+    });
+  })();
+</script>
 </body>
 </html>
