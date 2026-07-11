@@ -12,10 +12,10 @@
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; transition: background 0.2s ease, color 0.2s ease; }
 
     :root, html[data-theme="dark"] {
-      --green: #1F7A4F;
-      --green-rgb: 31,122,79;
-      --green-dim: #163D2A;
-      --green-mid: #1B5236;
+      --green: #26A396;
+      --green-rgb: 38,163,150;
+      --green-dim: #134A42;
+      --green-mid: #1A6459;
       --red: #e74c3c;
       --yellow: #f1c40f;
       --blue: #3b82f6;
@@ -45,14 +45,14 @@
       --term-text: #e8e8e4;
       --term-text-dim: #7a7a7a;
       --term-text-muted: #5e6870;
-      --term-green-dim: #2F8F5E;
+      --term-green-dim: #1F8A78;
     }
 
     html[data-theme="light"] {
-      --green: #1F7A4F;
-      --green-rgb: 31,122,79;
-      --green-dim: #2F8F5E;
-      --green-mid: #2A7A50;
+      --green: #26A396;
+      --green-rgb: 38,163,150;
+      --green-dim: #1F8A78;
+      --green-mid: #1D9482;
       --red: #d64533;
       --yellow: #c9950c;
       --blue: #2563eb;
@@ -159,7 +159,7 @@
     .term-out { color: var(--term-text-muted); margin-left: 17px; font-size: 11px; display: block; margin-top: -4px; }
     .term-success { color: var(--green); }
     .term-comment { color: var(--term-text-muted); }
-    .term-str { color: #8FE0B0; }
+    .term-str { color: #7DD8CB; }
     .term-sp { height: 6px; }
     .cursor { display: inline-block; width: 7px; height: 13px; background: var(--green); animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
     @keyframes blink { 50% { opacity: 0; } }
@@ -335,14 +335,14 @@
   <a href="#" class="nav-logo">
     <div class="nav-icon">
       <svg width="12" height="12" viewBox="0 0 22 22" fill="none">
-        <polygon points="11,1 21,6.5 21,15.5 11,21 1,15.5 1,6.5" fill="none" stroke="#1F7A4F" stroke-width="1.3"/>
-        <circle cx="11" cy="11" r="2.5" fill="#1F7A4F"/>
-        <line x1="11" y1="1" x2="11" y2="8.5" stroke="#1F7A4F" stroke-width="0.9"/>
-        <line x1="21" y1="6.5" x2="14.8" y2="10" stroke="#1F7A4F" stroke-width="0.9"/>
-        <line x1="21" y1="15.5" x2="14.8" y2="12" stroke="#1F7A4F" stroke-width="0.9"/>
-        <line x1="11" y1="21" x2="11" y2="13.5" stroke="#1F7A4F" stroke-width="0.9"/>
-        <line x1="1" y1="15.5" x2="7.2" y2="12" stroke="#1F7A4F" stroke-width="0.9"/>
-        <line x1="1" y1="6.5" x2="7.2" y2="10" stroke="#1F7A4F" stroke-width="0.9"/>
+        <polygon points="11,1 21,6.5 21,15.5 11,21 1,15.5 1,6.5" fill="none" stroke="#26A396" stroke-width="1.3"/>
+        <circle cx="11" cy="11" r="2.5" fill="#26A396"/>
+        <line x1="11" y1="1" x2="11" y2="8.5" stroke="#26A396" stroke-width="0.9"/>
+        <line x1="21" y1="6.5" x2="14.8" y2="10" stroke="#26A396" stroke-width="0.9"/>
+        <line x1="21" y1="15.5" x2="14.8" y2="12" stroke="#26A396" stroke-width="0.9"/>
+        <line x1="11" y1="21" x2="11" y2="13.5" stroke="#26A396" stroke-width="0.9"/>
+        <line x1="1" y1="15.5" x2="7.2" y2="12" stroke="#26A396" stroke-width="0.9"/>
+        <line x1="1" y1="6.5" x2="7.2" y2="10" stroke="#26A396" stroke-width="0.9"/>
       </svg>
     </div>
     <span class="nav-name">Shield<em>Gate</em></span>
@@ -630,8 +630,8 @@
     <div class="docs-logo">
       <div class="nav-icon" style="width:22px; height:22px;">
         <svg width="10" height="10" viewBox="0 0 22 22" fill="none">
-          <polygon points="11,1 21,6.5 21,15.5 11,21 1,15.5 1,6.5" fill="none" stroke="#1F7A4F" stroke-width="1.3"/>
-          <circle cx="11" cy="11" r="2.5" fill="#1F7A4F"/>
+          <polygon points="11,1 21,6.5 21,15.5 11,21 1,15.5 1,6.5" fill="none" stroke="#26A396" stroke-width="1.3"/>
+          <circle cx="11" cy="11" r="2.5" fill="#26A396"/>
         </svg>
       </div>
       <span class="docs-logo-name">Shield<em>Gate</em> Docs</span>
@@ -738,8 +738,8 @@
     <div class="footer-logo">
       <div class="nav-icon" style="width:22px;height:22px;">
         <svg width="10" height="10" viewBox="0 0 22 22" fill="none">
-          <polygon points="11,1 21,6.5 21,15.5 11,21 1,15.5 1,6.5" fill="none" stroke="#1F7A4F" stroke-width="1.3"/>
-          <circle cx="11" cy="11" r="2.5" fill="#1F7A4F"/>
+          <polygon points="11,1 21,6.5 21,15.5 11,21 1,15.5 1,6.5" fill="none" stroke="#26A396" stroke-width="1.3"/>
+          <circle cx="11" cy="11" r="2.5" fill="#26A396"/>
         </svg>
       </div>
       <span class="footer-logo-name">Shield<em>Gate</em></span>
