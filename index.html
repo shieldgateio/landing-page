@@ -144,6 +144,47 @@
 
     /* TERMINAL */
     .hero-right { position: relative; z-index: 1; }
+
+    .shield-motion { position: absolute; inset: -40px -60px -40px auto; width: 340px; z-index: 0; pointer-events: none; overflow: visible; }
+    .shield-motion svg { width: 100%; height: 100%; opacity: 0.5; }
+    .shield-motion .shield-outline { fill: none; stroke: var(--green); stroke-width: 1.4; }
+
+    .ping { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--green); top: 46%; left: 50%; opacity: 0; }
+    .ping-1 { animation: ping-fly 3.2s ease-in infinite; animation-delay: 0s; }
+    .ping-2 { animation: ping-fly-2 3.6s ease-in infinite; animation-delay: 1.1s; }
+    .ping-3 { animation: ping-fly-3 2.8s ease-in infinite; animation-delay: 2.1s; }
+
+    @keyframes ping-fly {
+      0%   { transform: translate(160px, -110px) scale(1); opacity: 0; }
+      12%  { opacity: 1; }
+      78%  { transform: translate(6px, -4px) scale(1); opacity: 1; }
+      88%  { transform: translate(0, 0) scale(2.2); opacity: 0.6; background: var(--red); }
+      100% { transform: translate(0, 0) scale(0); opacity: 0; }
+    }
+    @keyframes ping-fly-2 {
+      0%   { transform: translate(-140px, -90px) scale(1); opacity: 0; }
+      15%  { opacity: 1; }
+      78%  { transform: translate(-5px, -3px) scale(1); opacity: 1; }
+      88%  { transform: translate(0, 0) scale(2.2); opacity: 0.6; background: var(--red); }
+      100% { transform: translate(0, 0) scale(0); opacity: 0; }
+    }
+    @keyframes ping-fly-3 {
+      0%   { transform: translate(30px, 130px) scale(1); opacity: 0; }
+      15%  { opacity: 1; }
+      78%  { transform: translate(2px, 6px) scale(1); opacity: 1; }
+      88%  { transform: translate(0, 0) scale(2.2); opacity: 0.6; background: var(--red); }
+      100% { transform: translate(0, 0) scale(0); opacity: 0; }
+    }
+    @keyframes shield-pulse-ring {
+      0%   { transform: scale(0.9); opacity: 0.5; }
+      70%  { transform: scale(1.15); opacity: 0; }
+      100% { transform: scale(1.15); opacity: 0; }
+    }
+    .shield-pulse { position: absolute; top: 46%; left: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 1px solid var(--green); animation: shield-pulse-ring 3.2s ease-out infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ping, .shield-pulse { animation: none; opacity: 0; }
+    }
     .terminal { background: var(--term-bg); border: 1px solid var(--term-border); font-family: var(--mono); }
     html[data-theme="light"] .terminal { box-shadow: 0 24px 60px -24px rgba(var(--green-rgb),0.35); }
     .term-bar { display: flex; align-items: center; background: var(--term-bg-3); border-bottom: 1px solid var(--term-border-2); }
@@ -310,6 +351,7 @@
     .footer-social:hover { color: var(--green); }
 
     @media (max-width: 768px) {
+      .shield-motion, .ping, .shield-pulse { display: none; }
       nav { padding: 0 20px; }
       .nav-links { display: none; }
       .hero { grid-template-columns: 1fr; padding: 100px 20px 60px; gap: 40px; }
@@ -365,6 +407,18 @@
     </div>
   </div>
   <div class="hero-right">
+    <div class="shield-motion" aria-hidden="true">
+      <svg viewBox="0 0 48 55" xmlns="http://www.w3.org/2000/svg">
+        <path class="shield-outline" d="M24 0 L45 8 L45 27 C45 41 35 50 24 55 C13 50 3 41 3 27 L3 8 Z"/>
+        <line class="shield-outline" x1="6" y1="28" x2="42" y2="28"/>
+        <line class="shield-outline" x1="15" y1="28" x2="15" y2="42"/>
+        <line class="shield-outline" x1="33" y1="28" x2="33" y2="42"/>
+      </svg>
+    </div>
+    <div class="ping ping-1"></div>
+    <div class="ping ping-2"></div>
+    <div class="ping ping-3"></div>
+    <div class="shield-pulse"></div>
     <div class="terminal">
       <div class="term-bar">
         <div class="term-dots">
