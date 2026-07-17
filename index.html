@@ -48,45 +48,12 @@
       --term-green-dim: #1F8A78;
     }
 
-    html[data-theme="light"] {
-      --green: #26A396;
-      --green-rgb: 38,163,150;
-      --green-dim: #1F8A78;
-      --green-mid: #1D9482;
-      --red: #d64533;
-      --yellow: #c9950c;
-      --blue: #2563eb;
-      --border: #DCE2E5;
-      --border-light: #C9D1D5;
-      --grid-line: #B7C2C7;
-      --bg: #F3F5F6;
-      --bg-rgb: 243,245,246;
-      --bg-2: #FFFFFF;
-      --bg-3: #EBEEEF;
-      --text: #10161A;
-      --text-dim: #565F64;
-      --text-muted: #8B959A;
-      --scanline: rgba(16,22,26,0.02);
-      --overlay-soft: rgba(16,22,26,0.03);
-      --mono: 'Courier Prime', monospace;
-      --sans: 'Inter', sans-serif;
-    }
-
     /* SCANLINES */
     body::before {
       content: ''; position: fixed; inset: 0;
       background: repeating-linear-gradient(0deg, transparent, transparent 2px, var(--scanline) 2px, var(--scanline) 4px);
       pointer-events: none; z-index: 9999;
     }
-
-    /* THEME TOGGLE */
-    .theme-toggle {
-      font-family: var(--mono); font-size: 11px; color: var(--text-muted);
-      border: 1px solid var(--border-light); background: transparent;
-      padding: 7px 12px; cursor: pointer; letter-spacing: 0.04em;
-      transition: all 0.15s; display: flex; align-items: center; gap: 6px;
-    }
-    .theme-toggle:hover { color: var(--green); border-color: var(--green-dim); }
 
     /* NAV */
     nav {
